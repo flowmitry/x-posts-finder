@@ -1,0 +1,26 @@
+{
+    "config": {
+      "interval": 5,
+      "workdir": ""
+    },
+    "agents": [
+      {
+        "name": "copilot",
+        "context": {
+          "path": ".github/copilot-instructions.md"
+        }
+      },
+      {
+        "name": "claude",
+        "context": {
+          "path": "CLAUDE.md"
+        }
+      },
+      {
+        "name": "codex",
+        "context": {
+          "path": "AGENTS.md"
+        }
+      }
+    ]
+  }
