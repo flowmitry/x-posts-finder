@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "X Comment Finder",
+  "name": "X posts finder",
   "version": "1.0.0",
   "description": "Find posts on X (Twitter) that you might want to comment on and bookmark them automatically",
   "permissions": [
@@ -12,15 +12,27 @@
   "host_permissions": [
     "https://x.com/*",
     "https://twitter.com/*",
-    "http://192.168.1.222:1234/*",
     "http://localhost:1234/*",
     "http://127.0.0.1:1234/*",
     "http://*/*",
     "https://*/*"
   ],
+  "icons": {
+    "16": "icon.png",
+    "32": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png",
+    "512": "icon.png"
+  },
   "action": {
     "default_popup": "index.html",
-    "default_title": "X Comment Finder"
+    "default_title": "X posts finder",
+    "default_icon": {
+      "16": "icon.png",
+      "32": "icon.png",
+      "48": "icon.png",
+      "128": "icon.png"
+    }
   },
   "content_scripts": [
     {

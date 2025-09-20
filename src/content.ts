@@ -13,14 +13,10 @@ let settings: Settings
 
 // Listen for messages from popup
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  console.log('📨 Received message:', message)
-  
   if (message.action === 'START_PROCESSING') {
-    console.log('▶️ Starting processing with settings:', message.settings)
     settings = message.settings
     startProcessing()
   } else if (message.action === 'STOP_PROCESSING') {
-    console.log('⏹️ Stopping processing')
     isProcessing = false
   }
   
@@ -31,9 +27,6 @@ async function startProcessing() {
   isProcessing = true
   processedCount = 0
   bookmarkedCount = 0
-  
-  console.log('🚀 Starting X Comment Finder processing...')
-  console.log('📋 Current settings:', settings)
   
   // Scroll to top first
   window.scrollTo(0, 0)
@@ -61,7 +54,6 @@ async function startProcessing() {
         if (tweetText) {
           // Check if tweet is already bookmarked
           if (isTweetBookmarked(tweet as HTMLElement)) {
-            console.log('⏭️ Skipping already bookmarked tweet:', tweetText.substring(0, 100) + '...')
             highlightTweet(tweet as HTMLElement, 'already_bookmarked')
             processedCount++
             
@@ -91,7 +83,6 @@ async function startProcessing() {
             
             // Random pause after bookmarking (1-3 seconds)
             const randomPause = Math.floor(Math.random() * 2000) + 1000
-            console.log(`⏳ Random pause after bookmark: ${randomPause}ms`)
             await sleep(randomPause)
           } else {
             highlightTweet(tweet as HTMLElement, 'rejected')
@@ -181,7 +172,6 @@ function extractTweetText(tweet: HTMLElement): string | null {
 
 async function analyzeTweet(tweetText: string): Promise<boolean> {
   try {
-    console.log('🔍 Sending tweet to background for analysis:', tweetText.substring(0, 100) + '...')
     
     return new Promise((resolve) => {
       chrome.runtime.sendMessage({
@@ -196,7 +186,6 @@ async function analyzeTweet(tweetText: string): Promise<boolean> {
         }
         
         if (response.success) {
-          console.log('🎯 Background analysis result:', response.shouldBookmark ? 'YES' : 'NO')
           resolve(response.shouldBookmark)
         } else {
           console.error('❌ Background analysis failed:', response.error)
@@ -216,7 +205,6 @@ async function bookmarkTweet(tweet: HTMLElement): Promise<void> {
     const bookmarkButton = tweet.querySelector('[data-testid="bookmark"]') as HTMLElement
     if (bookmarkButton) {
       bookmarkButton.click()
-      console.log('Tweet bookmarked')
       return
     }
     
@@ -230,12 +218,10 @@ async function bookmarkTweet(tweet: HTMLElement): Promise<void> {
       const bookmarkOption = document.querySelector('[data-testid="bookmark"]') as HTMLElement
       if (bookmarkOption) {
         bookmarkOption.click()
-        console.log('Tweet bookmarked via menu')
         return
       }
     }
     
-    console.log('Could not find bookmark button for tweet')
   } catch (error) {
     console.error('Error bookmarking tweet:', error)
   }
@@ -243,14 +229,14 @@ async function bookmarkTweet(tweet: HTMLElement): Promise<void> {
 
 function addProcessingIndicator(tweet: HTMLElement): void {
   // Remove any existing indicators
-  const existingIndicator = tweet.querySelector('.x-comment-finder-indicator')
+  const existingIndicator = tweet.querySelector('.x-posts-finder-indicator')
   if (existingIndicator) {
     existingIndicator.remove()
   }
   
   // Add processing indicator
   const indicator = document.createElement('div')
-  indicator.className = 'x-comment-finder-indicator'
+  indicator.className = 'x-posts-finder-indicator'
   indicator.style.cssText = `
     position: absolute;
     top: 8px;
@@ -266,18 +252,18 @@ function addProcessingIndicator(tweet: HTMLElement): void {
   `
   
   // Add CSS animation if not already added
-  if (!document.querySelector('#x-comment-finder-styles')) {
+  if (!document.querySelector('#x-posts-finder-styles')) {
     const style = document.createElement('style')
-    style.id = 'x-comment-finder-styles'
+    style.id = 'x-posts-finder-styles'
     style.textContent = `
       @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
       }
-      .x-comment-finder-highlight {
+      .x-posts-finder-highlight {
         position: relative;
       }
-      .x-comment-finder-highlight::before {
+      .x-posts-finder-highlight::before {
         content: '';
         position: absolute;
         top: 0;
@@ -289,19 +275,19 @@ function addProcessingIndicator(tweet: HTMLElement): void {
         pointer-events: none;
         z-index: 1;
       }
-      .x-comment-finder-bookmarked::before {
+      .x-posts-finder-bookmarked::before {
         border-color: #22c55e;
         background: rgba(34, 197, 94, 0.1);
       }
-      .x-comment-finder-rejected::before {
+      .x-posts-finder-rejected::before {
         border-color: #ef4444;
         background: rgba(239, 68, 68, 0.1);
       }
-      .x-comment-finder-error::before {
+      .x-posts-finder-error::before {
         border-color: #f97316;
         background: rgba(249, 115, 22, 0.1);
       }
-      .x-comment-finder-already_bookmarked::before {
+      .x-posts-finder-already_bookmarked::before {
         border-color: #6b7280;
         background: rgba(107, 114, 128, 0.1);
       }
@@ -393,13 +379,9 @@ function highlightTweet(tweet: HTMLElement, type: 'bookmarked' | 'rejected' | 'e
   
   tweet.appendChild(badge)
   
-  console.log(`Tweet ${type}:`, extractTweetText(tweet)?.substring(0, 100))
 }
 
 function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-console.log('🎯 X Comment Finder content script loaded successfully!')
-console.log('🌐 Current page URL:', window.location.href)
-console.log('📄 Page title:', document.title)

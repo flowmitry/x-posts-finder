@@ -8,7 +8,7 @@ interface Settings {
   postLimit: number
 }
 
-function App() {
+function XPostsFinder() {
   const [settings, setSettings] = useState<Settings>({
     apiUrl: 'https://api.openai.com/v1/chat/completions',
     apiKey: '',
@@ -23,10 +23,19 @@ function App() {
   const [bookmarkedCount, setBookmarkedCount] = useState(0)
 
   useEffect(() => {
-    // Load saved settings
-    chrome.storage.local.get(['settings'], (result) => {
+    // Load saved settings and processing state
+    chrome.storage.local.get(['settings', 'processingState'], (result) => {
       if (result.settings) {
         setSettings(result.settings)
+      }
+      
+      // Restore processing state if it exists
+      if (result.processingState) {
+        const { isProcessing, isCompleted, processedCount, bookmarkedCount } = result.processingState
+        setIsProcessing(isProcessing || false)
+        setIsCompleted(isCompleted || false)
+        setProcessedCount(processedCount || 0)
+        setBookmarkedCount(bookmarkedCount || 0)
       }
     })
 
@@ -41,45 +50,52 @@ function App() {
     chrome.storage.local.set({ settings })
   }
 
+  const saveProcessingState = (state: {
+    isProcessing: boolean
+    isCompleted: boolean
+    processedCount: number
+    bookmarkedCount: number
+  }) => {
+    chrome.storage.local.set({ processingState: state })
+  }
+
   const startProcessing = async () => {
-    console.log('🚀 Start button clicked!')
-    console.log('📋 Current settings:', settings)
-    
     if (!settings.preferences) {
-      console.log('❌ No preferences provided')
       alert('Please fill in your post preferences')
       return
     }
 
     if (!isTwitterPage) {
-      console.log('❌ Not on Twitter/X page')
       alert('Please navigate to Twitter/X first')
       return
     }
-
-    console.log('✅ Starting processing...')
     setIsProcessing(true)
     setIsCompleted(false)
     setProcessedCount(0)
     setBookmarkedCount(0)
+    
+    // Save processing state
+    saveProcessingState({
+      isProcessing: true,
+      isCompleted: false,
+      processedCount: 0,
+      bookmarkedCount: 0
+    })
 
     // Send message to content script to start processing
     chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
-      console.log('📤 Sending message to tab:', tabs[0].id, 'URL:', tabs[0].url)
-      
       // Small delay to ensure script is loaded
       setTimeout(() => {
         chrome.tabs.sendMessage(tabs[0].id!, {
           action: 'START_PROCESSING',
           settings
-        }, (response) => {
+        }, (_response) => {
           if (chrome.runtime.lastError) {
-            console.error('❌ Error sending message:', chrome.runtime.lastError.message)
+            console.error('Error sending message:', chrome.runtime.lastError.message)
             alert('Extension failed to connect to page. Please refresh the Twitter/X page and try again.')
             setIsProcessing(false)
             return
           }
-          console.log('📥 Response from content script:', response)
         })
       }, 100)
     })
@@ -87,6 +103,14 @@ function App() {
 
   const stopProcessing = () => {
     setIsProcessing(false)
+    setIsCompleted(true)
+    saveProcessingState({
+      isProcessing: false,
+      isCompleted: true,
+      processedCount: processedCount,
+      bookmarkedCount: bookmarkedCount
+    })
+    
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       chrome.tabs.sendMessage(tabs[0].id!, {
         action: 'STOP_PROCESSING'
@@ -98,6 +122,14 @@ function App() {
     setIsCompleted(false)
     setProcessedCount(0)
     setBookmarkedCount(0)
+    
+    // Clear processing state
+    saveProcessingState({
+      isProcessing: false,
+      isCompleted: false,
+      processedCount: 0,
+      bookmarkedCount: 0
+    })
   }
 
   // Listen for messages from content script
@@ -106,9 +138,25 @@ function App() {
       if (message.action === 'PROCESSING_UPDATE') {
         setProcessedCount(message.processed)
         setBookmarkedCount(message.bookmarked)
+        
+        // Save updated counts
+        saveProcessingState({
+          isProcessing: true,
+          isCompleted: false,
+          processedCount: message.processed,
+          bookmarkedCount: message.bookmarked
+        })
       } else if (message.action === 'PROCESSING_COMPLETE') {
         setIsProcessing(false)
         setIsCompleted(true)
+        
+        // Save completion state with final counts from message
+        saveProcessingState({
+          isProcessing: false,
+          isCompleted: true,
+          processedCount: message.processed || processedCount,
+          bookmarkedCount: message.bookmarked || bookmarkedCount
+        })
       }
     }
 
@@ -116,19 +164,36 @@ function App() {
     return () => chrome.runtime.onMessage.removeListener(messageListener)
   }, [])
 
+  // Listen for storage changes (updates from background script)
+  useEffect(() => {
+    const storageListener = (changes: any) => {
+      if (changes.processingState && changes.processingState.newValue) {
+        const state = changes.processingState.newValue
+        
+        setIsProcessing(state.isProcessing || false)
+        setIsCompleted(state.isCompleted || false)
+        setProcessedCount(state.processedCount || 0)
+        setBookmarkedCount(state.bookmarkedCount || 0)
+      }
+    }
+
+    chrome.storage.onChanged.addListener(storageListener)
+    return () => chrome.storage.onChanged.removeListener(storageListener)
+  }, [])
+
   const progressPercentage = settings.postLimit > 0 ? (processedCount / settings.postLimit) * 100 : 0
   const bookmarkRate = processedCount > 0 ? (bookmarkedCount / processedCount) * 100 : 0
 
   return (
-    <div className="app-container">
+    <div className="x-posts-finder-container">
       {/* Header */}
-      <div className="app-header">
+      <div className="x-posts-finder-header">
         <div className="header-content">
-          <div className="header-icon">
-            <span>🎯</span>
+          <div className={`header-icon ${isProcessing ? 'processing' : ''}`}>
+            <span>X?</span>
           </div>
           <div>
-            <h1 className="header-title">X Comment Finder</h1>
+            <h1 className="header-title">X posts finder</h1>
             <p className="header-subtitle">AI-powered tweet discovery</p>
           </div>
         </div>
@@ -142,16 +207,24 @@ function App() {
         </div>
       </div>
 
-      <div className="app-content">
-        {isProcessing ? (
-          // Processing View - Show only progress and stop button
+      <div className="x-posts-finder-content">
+        {isProcessing || isCompleted ? (
+          // Processing/Completed View - Show progress and stop/back button
           <>
             <div className="progress-section">
               <div className="progress-header">
-                <span className="progress-title">Processing Progress</span>
+                <span className="progress-title">
+                  {isCompleted ? 'Analysis Complete!' : 'Processing Progress'}
+                </span>
                 <div className="progress-status">
-                  <div className="status-pulse"></div>
-                  <span className="status-label">Active</span>
+                  {isCompleted ? (
+                    <span className="status-label">✅ Done</span>
+                  ) : (
+                    <>
+                      <div className="status-pulse"></div>
+                      <span className="status-label">Active</span>
+                    </>
+                  )}
                 </div>
               </div>
               
@@ -180,61 +253,22 @@ function App() {
               </div>
             </div>
 
-            {/* Stop button */}
+            {/* Stop/Back button */}
             <button
-              onClick={stopProcessing}
-              className="action-button stop"
+              onClick={isCompleted ? goBack : stopProcessing}
+              className={`action-button ${isCompleted ? 'start' : 'stop'}`}
             >
-              <span>⏹️</span>
-              Stop Processing
-            </button>
-          </>
-        ) : isCompleted ? (
-          // Completion View - Show results and back button
-          <>
-            <div className="completion-section">
-              <div className="completion-header">
-                <span className="completion-icon">✅</span>
-                <h2 className="completion-title">Analysis Complete!</h2>
-              </div>
-              
-              <div className="results-summary">
-                <div className="result-item">
-                  <span className="result-label">Total Processed:</span>
-                  <span className="result-value">{processedCount} tweets</span>
-                </div>
-                <div className="result-item">
-                  <span className="result-label">Bookmarked:</span>
-                  <span className="result-value">{bookmarkedCount} tweets</span>
-                </div>
-                <div className="result-item">
-                  <span className="result-label">Success Rate:</span>
-                  <span className="result-value">{bookmarkRate.toFixed(1)}%</span>
-                </div>
-              </div>
-              
-              {bookmarkedCount > 0 && (
-                <div className="completion-message">
-                  <p>🎉 Found {bookmarkedCount} tweets that match your preferences!</p>
-                  <p>Check your X bookmarks to see the selected tweets.</p>
-                </div>
+              {isCompleted ? (
+                <>
+                  <span>←</span>
+                  Back
+                </>
+              ) : (
+                <>
+                  <span>⏹️</span>
+                  Stop Processing
+                </>
               )}
-              
-              {bookmarkedCount === 0 && (
-                <div className="completion-message">
-                  <p>🔍 No tweets matched your criteria this time.</p>
-                  <p>Try adjusting your preferences or checking a different part of your feed.</p>
-                </div>
-              )}
-            </div>
-
-            {/* Back button */}
-            <button
-              onClick={goBack}
-              className="action-button start"
-            >
-              <span>←</span>
-              Back to Settings
             </button>
           </>
         ) : (
@@ -341,4 +375,4 @@ function App() {
   )
 }
 
-export default App
+export default XPostsFinder
