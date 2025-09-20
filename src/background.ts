@@ -1,12 +1,6 @@
 // Background script for X posts finder extension
 
-interface Settings {
-  apiUrl: string
-  apiKey: string
-  modelName: string
-  preferences: string
-  postLimit: number
-}
+import type { ProcessingState, Settings } from './types'
 
 chrome.runtime.onInstalled.addListener(() => {
   console.log('X posts finder extension installed')
@@ -32,7 +26,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   // Forward messages between content script and popup
   if (message.action === 'PROCESSING_UPDATE' || message.action === 'PROCESSING_COMPLETE') {
     // Store the processing state in chrome.storage for persistence
-    const processingState = {
+    const processingState: ProcessingState = {
       isProcessing: message.action === 'PROCESSING_UPDATE',
       isCompleted: message.action === 'PROCESSING_COMPLETE',
       processedCount: message.processed || 0,
@@ -94,7 +88,7 @@ Should I comment? Answer only YES or NO.`
     let data
     try {
       data = JSON.parse(responseText)
-    } catch (parseError) {
+    } catch {
       throw new Error(`Invalid JSON response: ${responseText}`)
     }
     

@@ -1,10 +1,4 @@
-interface Settings {
-  apiUrl: string
-  apiKey: string
-  modelName: string
-  preferences: string
-  postLimit: number
-}
+import type { Settings } from './types'
 
 let isProcessing = false
 let processedCount = 0
@@ -384,4 +378,3 @@ function highlightTweet(tweet: HTMLElement, type: 'bookmarked' | 'rejected' | 'e
 function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
-

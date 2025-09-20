@@ -1,6 +1,6 @@
-# X Comment
+# X Posts Finder
 
-X Comment is a browser extension that helps you discover the posts worth engaging with on X (formerly Twitter). Describe what kinds of conversations you want to join, and the extension combs through your feed to surface the tweets that match.
+X Posts Finder is a browser extension that helps you discover the posts worth engaging with on X (formerly Twitter). Describe what kinds of conversations you want to join, and the extension combs through your feed to surface the tweets that match.
 
 ## What It Does
 - Highlights posts that align with the preferences you set in the popup
@@ -9,7 +9,7 @@ X Comment is a browser extension that helps you discover the posts worth engagin
 - Stores your saved preferences so it is easy to restart a session later
 
 ## How to Use It
-1. Open X or Twitter in your browser and launch the extension.
+1. Open X.com in your browser and launch the extension.
 2. Outline the topics or tone you want to focus on inside the popup.
 3. Start the analysis and let the extension review your feed, bookmarking the best matches.
 4. Stop the run at any time to see a quick summary of what it found.
