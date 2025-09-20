@@ -65,59 +65,59 @@ Should I comment? Answer only YES or NO.`
       model: settings.modelName,
       messages: [
         {
-          role: "user",
+          role: 'user',
           content: prompt
         }
-      ],
-      max_tokens: 50,
-      temperature: 0
+      ]
     }
-    
+
     const response = await fetch(settings.apiUrl, {
       method: 'POST',
       headers,
       body: JSON.stringify(requestBody)
     })
-    
+
     const responseText = await response.text()
-    
+
     if (!response.ok) {
       throw new Error(`API request failed: ${response.status} - ${responseText}`)
     }
-    
-    let data
+
+    let data: ModelResponse
     try {
-      data = JSON.parse(responseText)
+      data = JSON.parse(responseText) as ModelResponse
     } catch {
       throw new Error(`Invalid JSON response: ${responseText}`)
     }
-    
-    const rawContent = data.choices?.[0]?.message?.content?.trim() || ""
-    const reasoning = data.choices?.[0]?.message?.reasoning?.trim() || ""
-    
+
+    const rawContent = data.choices?.[0]?.message?.content?.trim() || ''
+
     // Use content field as primary decision source
     const contentUpper = rawContent.toUpperCase()
-    
-    let decision = false
-    
-    // Primary check: look for YES/NO in content field
+
     if (contentUpper.includes('YES')) {
-      decision = true
-    } else if (contentUpper.includes('NO')) {
-      decision = false
-    } else {
-      // Fallback: if content is unclear, check reasoning
-      const reasoningUpper = reasoning.toUpperCase()
-      if (reasoningUpper.includes('YES') || reasoningUpper.includes('LIKELY YES')) {
-        decision = true
-      } else {
-        decision = false
-      }
+      return true
     }
-    
-    return decision
+
+    if (contentUpper.includes('NO')) {
+      return false
+    }
+
+    return false
   } catch (error) {
     console.error('Error analyzing tweet:', error)
     return false
   }
+}
+
+interface ModelMessage {
+  content?: string
+}
+
+interface ModelChoice {
+  message?: ModelMessage
+}
+
+interface ModelResponse {
+  choices?: ModelChoice[]
 }

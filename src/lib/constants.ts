@@ -3,7 +3,7 @@ import type { ProcessingState, Settings } from '../types'
 export const DEFAULT_SETTINGS: Settings = {
   apiUrl: 'https://api.openai.com/v1/chat/completions',
   apiKey: '',
-  modelName: 'gpt-3.5-turbo',
+  modelName: 'gpt-5-nano',
   preferences: '',
   postLimit: 1000
 }
