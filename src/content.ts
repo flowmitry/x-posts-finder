@@ -329,16 +329,36 @@ function isTweetBookmarked(tweet: HTMLElement): boolean {
 
 function highlightTweet(tweet: HTMLElement, type: 'bookmarked' | 'rejected' | 'error' | 'already_bookmarked'): void {
   // Remove processing indicator
-  const indicator = tweet.querySelector('.x-comment-finder-indicator')
+  const indicator = tweet.querySelector('.x-posts-finder-indicator')
   if (indicator) {
     indicator.remove()
   }
   
+  // Ensure previous highlight classes are cleared before applying the new state
+  tweet.classList.remove(
+    'x-posts-finder-highlight',
+    'x-posts-finder-bookmarked',
+    'x-posts-finder-rejected',
+    'x-posts-finder-error',
+    'x-posts-finder-already_bookmarked',
+    'x-comment-finder-highlight',
+    'x-comment-finder-bookmarked',
+    'x-comment-finder-rejected',
+    'x-comment-finder-error',
+    'x-comment-finder-already_bookmarked'
+  )
+
   // Add highlight class
-  tweet.classList.add('x-comment-finder-highlight', `x-comment-finder-${type}`)
+  tweet.classList.add('x-posts-finder-highlight', `x-posts-finder-${type}`)
   
   // Add status badge
+  const existingBadge = tweet.querySelector('.x-posts-finder-badge')
+  if (existingBadge) {
+    existingBadge.remove()
+  }
+
   const badge = document.createElement('div')
+  badge.className = 'x-posts-finder-badge'
   badge.style.cssText = `
     position: absolute;
     top: 8px;

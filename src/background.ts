@@ -1,9 +1,9 @@
-// Background script for X posts finder extension
+// Background script for XPostsFinder extension
 
 import type { ProcessingState, Settings } from './types'
 
 chrome.runtime.onInstalled.addListener(() => {
-  console.log('X posts finder extension installed')
+  console.log('XPostsFinder extension installed')
 })
 
 // Handle messages from content script and popup

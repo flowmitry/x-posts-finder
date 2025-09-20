@@ -11,15 +11,15 @@ export function ProgressPanel({ processedCount, bookmarkedCount, progressPercent
     <div className="progress-section">
       <div className="progress-header">
         <span className="progress-title">
-          {isCompleted ? 'Analysis Complete!' : 'Processing Progress'}
+          {isCompleted ? 'Analysis complete' : 'Live analysis'}
         </span>
         <div className="progress-status">
           {isCompleted ? (
-            <span className="status-label">✅ Done</span>
+            <span className="status-label">Complete</span>
           ) : (
             <>
               <div className="status-pulse"></div>
-              <span className="status-label">Active</span>
+              <span className="status-label">In progress</span>
             </>
           )}
         </div>

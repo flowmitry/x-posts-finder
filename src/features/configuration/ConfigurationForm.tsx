@@ -14,10 +14,6 @@ export function ConfigurationForm({ settings, onUpdate, onPersist }: Configurati
 
   return (
     <div className="config-section">
-      <h2 className="section-title">
-        <span>⚙️</span> Configuration
-      </h2>
-
       <div className="form-group form-group-compact">
         <label className="form-label">API Endpoint</label>
         <input
@@ -25,7 +21,7 @@ export function ConfigurationForm({ settings, onUpdate, onPersist }: Configurati
           value={settings.apiUrl}
           onChange={(event) => onUpdate({ apiUrl: event.target.value })}
           onBlur={onPersist}
-          className="form-input form-input-compact"
+          className="form-input"
           placeholder="API endpoint URL"
         />
       </div>
@@ -38,11 +34,11 @@ export function ConfigurationForm({ settings, onUpdate, onPersist }: Configurati
             value={settings.apiKey}
             onChange={(event) => onUpdate({ apiKey: event.target.value })}
             onBlur={onPersist}
-            className="form-input form-input-compact"
+            className="form-input"
             placeholder="API key (optional)"
           />
-          <div className={`input-icon input-icon-compact ${settings.apiKey ? 'valid' : 'invalid'}`}>
-            {settings.apiKey ? '🔑' : '🔒'}
+          <div className={`input-icon ${settings.apiKey ? 'valid' : ''}`}>
+            {settings.apiKey ? 'Saved' : 'Optional'}
           </div>
         </div>
       </div>
@@ -55,7 +51,7 @@ export function ConfigurationForm({ settings, onUpdate, onPersist }: Configurati
             value={settings.modelName}
             onChange={(event) => onUpdate({ modelName: event.target.value })}
             onBlur={onPersist}
-            className="form-input form-input-compact"
+            className="form-input"
             placeholder="Model name"
           />
         </div>
@@ -67,7 +63,7 @@ export function ConfigurationForm({ settings, onUpdate, onPersist }: Configurati
             value={settings.postLimit}
             onChange={(event) => handlePostLimitChange(event.target.value)}
             onBlur={onPersist}
-            className="form-input form-input-compact"
+            className="form-input"
             min="1"
             max="10000"
           />
@@ -75,7 +71,7 @@ export function ConfigurationForm({ settings, onUpdate, onPersist }: Configurati
       </div>
 
       <div className="form-group">
-        <label className="form-label">Post Preferences</label>
+        <label className="form-label">I want to bookmark posts about:</label>
         <textarea
           value={settings.preferences}
           onChange={(event) => onUpdate({ preferences: event.target.value })}

@@ -1,6 +1,6 @@
-# X Posts Finder
+# XPostsFinder
 
-X Posts Finder is a browser extension that helps you discover the posts worth engaging with on X (formerly Twitter). Describe what kinds of conversations you want to join, and the extension combs through your feed to surface the tweets that match.
+XPostsFinder is a browser extension that helps you discover the posts worth engaging with on X (formerly Twitter). Describe what kinds of conversations you want to join, and the extension combs through your feed to surface the tweets that match.
 
 ## What It Does
 - Highlights posts that align with the preferences you set in the popup

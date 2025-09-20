@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "X posts finder",
+  "name": "XPostsFinder",
   "version": "1.0.0",
-  "description": "Find posts on X (Twitter) that you might want to comment on and bookmark them automatically",
+  "description": "XPostsFinder helps you find posts on X (Twitter) that you might want to comment on and bookmark automatically",
   "permissions": [
     "activeTab",
     "storage",
@@ -26,7 +26,7 @@
   },
   "action": {
     "default_popup": "index.html",
-    "default_title": "X posts finder",
+    "default_title": "XPostsFinder",
     "default_icon": {
       "16": "icon.png",
       "32": "icon.png",

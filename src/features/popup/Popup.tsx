@@ -59,7 +59,7 @@ export function Popup() {
 
   return (
     <div className="x-posts-finder-container">
-      <Header isProcessing={isProcessing} isTwitterPage={isTwitterPage} />
+      <Header isProcessing={isProcessing} />
 
       <div className="x-posts-finder-content">
         {showProcessingState ? (
@@ -76,25 +76,15 @@ export function Popup() {
               onClick={isCompleted ? handleReset : handleStop}
               variant={isCompleted ? 'start' : 'stop'}
             >
-              {isCompleted ? (
-                <>
-                  <span>←</span>
-                  Back
-                </>
-              ) : (
-                <>
-                  <span>⏹️</span>
-                  Stop Processing
-                </>
-              )}
+              {isCompleted ? 'Back to setup' : 'Stop analysis'}
             </ActionButton>
           </>
         ) : (
           <>
             {!isTwitterPage && (
               <div className="error-alert">
-                <span className="error-icon">⚠️</span>
-                <p className="error-text">Please navigate to Twitter/X first</p>
+                <span className="error-icon">!</span>
+                <p className="error-text">Please open X/Twitter to get started.</p>
               </div>
             )}
 
@@ -109,8 +99,7 @@ export function Popup() {
               disabled={!isTwitterPage}
               variant={isTwitterPage ? 'start' : 'default'}
             >
-              <span>🚀</span>
-              {isTwitterPage ? 'Start Analysis' : 'Go to X/Twitter First'}
+              {isTwitterPage ? 'Start' : 'Open X'}
             </ActionButton>
           </>
         )}
