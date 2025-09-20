@@ -46,6 +46,22 @@ async function startProcessing() {
       try {
         const tweetText = extractTweetText(tweet as HTMLElement)
         if (tweetText) {
+          // Skip pinned tweets
+          if (isPinnedTweet(tweet as HTMLElement)) {
+            highlightTweet(tweet as HTMLElement, 'pinned')
+            processedCount++
+            
+            // Send update to popup
+            chrome.runtime.sendMessage({
+              action: 'PROCESSING_UPDATE',
+              processed: processedCount,
+              bookmarked: bookmarkedCount
+            })
+            
+            await sleep(200) // Short pause for pinned tweets
+            continue
+          }
+          
           // Check if tweet is already bookmarked
           if (isTweetBookmarked(tweet as HTMLElement)) {
             highlightTweet(tweet as HTMLElement, 'already_bookmarked')
@@ -285,6 +301,10 @@ function addProcessingIndicator(tweet: HTMLElement): void {
         border-color: #6b7280;
         background: rgba(107, 114, 128, 0.1);
       }
+      .x-posts-finder-pinned::before {
+        border-color: #8b5cf6;
+        background: rgba(139, 92, 246, 0.1);
+      }
     `
     document.head.appendChild(style)
   }
@@ -327,7 +347,55 @@ function isTweetBookmarked(tweet: HTMLElement): boolean {
   }
 }
 
-function highlightTweet(tweet: HTMLElement, type: 'bookmarked' | 'rejected' | 'error' | 'already_bookmarked'): void {
+function isPinnedTweet(tweet: HTMLElement): boolean {
+  try {
+    // Check for pinned tweet indicators
+    
+    // Look for the pinned icon (usually appears before tweet text)
+    const pinnedIcon = tweet.querySelector('[data-testid="pin"]')
+    if (pinnedIcon) {
+      return true
+    }
+    
+    // Look for "Pinned" text which often appears in pinned tweets
+    const tweetContent = tweet.textContent || ''
+    if (tweetContent.includes('Pinned')) {
+      return true
+    }
+    
+    // Look for pinned tweet specific elements or labels
+    const pinnedLabels = tweet.querySelectorAll('[aria-label*="Pinned"], [title*="Pinned"], [alt*="Pinned"]')
+    if (pinnedLabels.length > 0) {
+      return true
+    }
+    
+    // Check for common CSS classes that might indicate pinned tweets
+    const possiblePinnedClasses = ['pinned', 'pin', 'sticky']
+    for (const className of possiblePinnedClasses) {
+      if (tweet.classList.contains(className) || tweet.querySelector(`.${className}`)) {
+        return true
+      }
+    }
+    
+    // Look for SVG icons that might represent pinned tweets
+    const svgIcons = tweet.querySelectorAll('svg')
+    for (const svg of svgIcons) {
+      const svgContent = svg.outerHTML.toLowerCase()
+      // Common pin/thumbtack SVG patterns
+      if (svgContent.includes('pin') || svgContent.includes('thumbtack') || 
+          svgContent.includes('M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H18v-2c-1.66 0-3-1.34-3-3z')) {
+        return true
+      }
+    }
+    
+    return false
+  } catch (error) {
+    console.error('Error checking if tweet is pinned:', error)
+    return false
+  }
+}
+
+function highlightTweet(tweet: HTMLElement, type: 'bookmarked' | 'rejected' | 'error' | 'already_bookmarked' | 'pinned'): void {
   // Remove processing indicator
   const indicator = tweet.querySelector('.x-posts-finder-indicator')
   if (indicator) {
@@ -341,11 +409,13 @@ function highlightTweet(tweet: HTMLElement, type: 'bookmarked' | 'rejected' | 'e
     'x-posts-finder-rejected',
     'x-posts-finder-error',
     'x-posts-finder-already_bookmarked',
+    'x-posts-finder-pinned',
     'x-comment-finder-highlight',
     'x-comment-finder-bookmarked',
     'x-comment-finder-rejected',
     'x-comment-finder-error',
-    'x-comment-finder-already_bookmarked'
+    'x-comment-finder-already_bookmarked',
+    'x-comment-finder-pinned'
   )
 
   // Add highlight class
@@ -388,6 +458,10 @@ function highlightTweet(tweet: HTMLElement, type: 'bookmarked' | 'rejected' | 'e
     case 'already_bookmarked':
       badge.textContent = '📌 ALREADY SAVED'
       badge.style.backgroundColor = '#6b7280'
+      break
+    case 'pinned':
+      badge.textContent = '📍 PINNED - SKIPPED'
+      badge.style.backgroundColor = '#8b5cf6'
       break
   }
   
