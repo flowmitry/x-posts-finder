@@ -8,7 +8,9 @@ interface ConfigurationFormProps {
 
 export function ConfigurationForm({ settings, onUpdate, onPersist }: ConfigurationFormProps) {
   const handlePostLimitChange = (value: string) => {
-    const parsedValue = parseInt(value, 10)
+    // Allow empty string or numeric values only
+    const numericValue = value.replace(/[^0-9]/g, '')
+    const parsedValue = parseInt(numericValue, 10)
     onUpdate({ postLimit: Number.isNaN(parsedValue) ? 0 : parsedValue })
   }
 
@@ -59,13 +61,12 @@ export function ConfigurationForm({ settings, onUpdate, onPersist }: Configurati
         <div className="form-group form-group-compact">
           <label className="form-label">Post Limit</label>
           <input
-            type="number"
+            type="text"
             value={settings.postLimit}
             onChange={(event) => handlePostLimitChange(event.target.value)}
             onBlur={onPersist}
             className="form-input"
-            min="1"
-            max="10000"
+            placeholder="Enter number of posts (1-10000)"
           />
         </div>
       </div>
