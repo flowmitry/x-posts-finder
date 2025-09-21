@@ -5,7 +5,7 @@ export const DEFAULT_SETTINGS: Settings = {
   apiKey: '',
   modelName: 'gpt-5-nano',
   preferences: 'Only include posts from solo builders when they share real, specific work on their product.',
-  postLimit: 1000
+  postLimit: 100
 }
 
 export const INITIAL_PROCESSING_STATE: ProcessingState = {
