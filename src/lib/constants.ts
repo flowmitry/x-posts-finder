@@ -4,7 +4,7 @@ export const DEFAULT_SETTINGS: Settings = {
   apiUrl: 'https://api.openai.com/v1/chat/completions',
   apiKey: '',
   modelName: 'gpt-5-nano',
-  preferences: '',
+  preferences: 'Only include posts from solo builders when they share real, specific work on their product.',
   postLimit: 1000
 }
 
