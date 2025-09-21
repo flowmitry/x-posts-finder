@@ -1,6 +1,6 @@
 # XPostsFinder – Smarter Conversations on X (Twitter)
 
-Endless scrolling on X can feel like searching for a needle in a haystack. XPostsFinder helps you cut through the noise by automatically surfacing the conversations that actually matter.
+XPostsFinder automatically bookmarks the posts on X that match your interests, so you can skip the scroll and join the right conversations.
 
 How it works:
 1. Configure AI – add your OpenAI token or connect to a local LM Studio API.
