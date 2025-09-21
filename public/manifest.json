@@ -14,8 +14,7 @@
     "https://twitter.com/*",
     "http://localhost:1234/*",
     "http://127.0.0.1:1234/*",
-    "http://*/*",
-    "https://*/*"
+    "https://api.openai.com/*"
   ],
   "icons": {
     "16": "icon.png",
