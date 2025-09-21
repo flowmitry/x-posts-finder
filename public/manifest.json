@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "XPostsFinder",
   "version": "1.0.0",
-  "description": "XPostsFinder helps you find posts on X (Twitter) that you might want to comment on and bookmark automatically",
+  "description": "XPostsFinder - Smarter Conversations on X (Twitter)",
   "permissions": [
     "activeTab",
     "storage",
