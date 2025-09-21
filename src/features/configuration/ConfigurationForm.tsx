@@ -7,11 +7,11 @@ interface ConfigurationFormProps {
 }
 
 export function ConfigurationForm({ settings, onUpdate, onPersist }: ConfigurationFormProps) {
-  const handlePostLimitChange = (value: string) => {
+  const handleBookmarksLimitChange = (value: string) => {
     // Allow empty string or numeric values only
     const numericValue = value.replace(/[^0-9]/g, '')
     const parsedValue = parseInt(numericValue, 10)
-    onUpdate({ postLimit: Number.isNaN(parsedValue) ? 0 : parsedValue })
+    onUpdate({ bookmarksLimit: Number.isNaN(parsedValue) ? 0 : parsedValue })
   }
 
   return (
@@ -59,14 +59,14 @@ export function ConfigurationForm({ settings, onUpdate, onPersist }: Configurati
         </div>
 
         <div className="form-group form-group-compact">
-          <label className="form-label">Post Limit</label>
+          <label className="form-label">Bookmarks Limit</label>
           <input
             type="text"
-            value={settings.postLimit}
-            onChange={(event) => handlePostLimitChange(event.target.value)}
+            value={settings.bookmarksLimit}
+            onChange={(event) => handleBookmarksLimitChange(event.target.value)}
             onBlur={onPersist}
             className="form-input"
-            placeholder="Enter number of posts (1-10000)"
+            placeholder="Enter number of bookmarks (1-10000)"
           />
         </div>
       </div>
@@ -78,7 +78,7 @@ export function ConfigurationForm({ settings, onUpdate, onPersist }: Configurati
           onChange={(event) => onUpdate({ preferences: event.target.value })}
           onBlur={onPersist}
           className="form-textarea"
-          placeholder="I want to comment on posts about technology, startups, or programming that seem controversial or have interesting discussions..."
+          placeholder="I want to bookmark posts about technology, startups, or programming that seem controversial or have interesting discussions..."
         />
         <div className="character-counter">
           {settings.preferences.length}/500 characters

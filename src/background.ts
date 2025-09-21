@@ -46,11 +46,11 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
 async function analyzeTweet(tweetText: string, settings: Settings): Promise<boolean> {
   try {
-    const prompt = `I want to comment on tweets about: "${settings.preferences}"
+    const prompt = `I want to bookmark posts about: "${settings.preferences}"
 
 Tweet: "${tweetText}"
 
-Should I comment? Answer only YES or NO.`
+Should I bookmark this post? Answer only YES or NO.`
     
     const headers: Record<string, string> = {
       'Content-Type': 'application/json'

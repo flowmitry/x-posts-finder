@@ -28,13 +28,13 @@ async function startProcessing() {
   
   const processedTweets = new Set<string>()
   
-  while (isProcessing && processedCount < settings.postLimit) {
+  while (isProcessing && bookmarkedCount < settings.bookmarksLimit) {
     // Find all tweet articles on the page
     const tweets = document.querySelectorAll('[data-testid="tweet"]')
     let newTweetsFound = false
     
     for (const tweet of tweets) {
-      if (!isProcessing || processedCount >= settings.postLimit) break
+      if (!isProcessing || bookmarkedCount >= settings.bookmarksLimit) break
       
       // Create a unique identifier for this tweet
       const tweetId = getTweetId(tweet as HTMLElement)

@@ -41,8 +41,8 @@ export function Popup() {
   }, [resetProcessing])
 
   const { progressPercentage, bookmarkRate } = useMemo(() => {
-    const progress = settings.postLimit > 0
-      ? (processedCount / settings.postLimit) * 100
+    const progress = settings.bookmarksLimit > 0
+      ? (bookmarkedCount / settings.bookmarksLimit) * 100
       : 0
 
     const rate = processedCount > 0
@@ -53,7 +53,7 @@ export function Popup() {
       progressPercentage: progress,
       bookmarkRate: rate
     }
-  }, [bookmarkedCount, processedCount, settings.postLimit])
+  }, [bookmarkedCount, processedCount, settings.bookmarksLimit])
 
   const showProcessingState = isProcessing || isCompleted
 

@@ -3,7 +3,7 @@ export interface Settings {
   apiKey: string
   modelName: string
   preferences: string
-  postLimit: number
+  bookmarksLimit: number
 }
 
 export interface ProcessingState {
