@@ -5,9 +5,7 @@
   "description": "XPostsFinder - Smarter Conversations on X (Twitter)",
   "permissions": [
     "activeTab",
-    "storage",
-    "bookmarks",
-    "scripting"
+    "storage"
   ],
   "host_permissions": [
     "https://x.com/*",
