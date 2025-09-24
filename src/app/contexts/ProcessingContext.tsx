@@ -12,6 +12,8 @@ export interface ProcessingContextValue {
   refreshTwitterStatus: () => Promise<boolean>
   startProcessing: () => Promise<void>
   stopProcessing: () => Promise<void>
+  continueProcessing: () => Promise<void>
+  startFromCurrentPosition: () => Promise<void>
   resetProcessing: () => void
   updateProcessingState: (updates: Partial<ProcessingState>, options?: { persist?: boolean }) => void
 }

@@ -161,6 +161,74 @@ export function ProcessingProvider({ children }: { children: React.ReactNode }) 
     }, { persist: true })
   }, [updateProcessingState])
 
+  const continueProcessing = useCallback(async () => {
+    const onTwitter = await refreshStatus()
+    if (!onTwitter) {
+      alert('Please navigate to Twitter/X first')
+      return
+    }
+
+    const tab = await getActiveTab()
+    if (!tab?.id) {
+      alert('Extension could not locate the active tab. Please try again.')
+      return
+    }
+
+    updateProcessingState({
+      isProcessing: true,
+      isCompleted: false
+    }, { persist: true })
+
+    try {
+      await sendMessageToTab(tab.id, {
+        action: 'CONTINUE_PROCESSING',
+        settings
+      })
+    } catch (error) {
+      console.error('Error sending CONTINUE_PROCESSING message:', error)
+      alert('Extension failed to continue. Please refresh the Twitter/X page and try again.')
+      updateProcessingState({ isProcessing: false }, { persist: true })
+    }
+  }, [refreshStatus, settings, updateProcessingState])
+
+  const startFromCurrentPosition = useCallback(async () => {
+    const onTwitter = await refreshStatus()
+    if (!onTwitter) {
+      alert('Please navigate to Twitter/X first')
+      return
+    }
+
+    try {
+      await saveSettings()
+    } catch (error) {
+      console.error('Failed to persist settings before restarting:', error)
+    }
+
+    const tab = await getActiveTab()
+    if (!tab?.id) {
+      alert('Extension could not locate the active tab. Please try again.')
+      return
+    }
+
+    updateProcessingState({
+      isProcessing: true,
+      isCompleted: false,
+      processedCount: 0,
+      bookmarkedCount: 0
+    }, { persist: true })
+
+    try {
+      await sendMessageToTab(tab.id, {
+        action: 'RESTART_PROCESSING_FROM_CURRENT',
+        settings
+      })
+    } catch (error) {
+      console.error('Error sending RESTART_PROCESSING_FROM_CURRENT message:', error)
+      alert('Extension failed to restart. Please refresh the Twitter/X page and try again.')
+      updateProcessingState({ isProcessing: false }, { persist: true })
+    }
+  }, [refreshStatus, saveSettings, settings, updateProcessingState])
+
   const resetProcessing = useCallback(() => {
     updateProcessingState({
       ...INITIAL_PROCESSING_STATE
@@ -178,9 +246,11 @@ export function ProcessingProvider({ children }: { children: React.ReactNode }) 
     refreshTwitterStatus: refreshStatus,
     startProcessing,
     stopProcessing,
+    continueProcessing,
+    startFromCurrentPosition,
     resetProcessing,
     updateProcessingState
-  }), [isProcessingLoaded, isTwitterPage, refreshStatus, resetProcessing, startProcessing, state, stopProcessing, updateProcessingState])
+  }), [continueProcessing, isProcessingLoaded, isTwitterPage, refreshStatus, resetProcessing, startFromCurrentPosition, startProcessing, state, stopProcessing, updateProcessingState])
 
   return (
     <ProcessingContext.Provider value={value}>

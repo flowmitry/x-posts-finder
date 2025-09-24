@@ -4,12 +4,25 @@ let isProcessing = false
 let processedCount = 0
 let bookmarkedCount = 0
 let settings: Settings
+let processedTweets = new Set<string>()
+
+interface StartProcessingOptions {
+  resetCounters?: boolean
+  scrollToTop?: boolean
+  resetProcessedTweets?: boolean
+}
 
 // Listen for messages from popup
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message.action === 'START_PROCESSING') {
     settings = message.settings
-    startProcessing()
+    void startProcessing({ resetCounters: true, scrollToTop: true, resetProcessedTweets: true })
+  } else if (message.action === 'CONTINUE_PROCESSING') {
+    settings = message.settings ?? settings
+    void startProcessing({ resetCounters: false, scrollToTop: false, resetProcessedTweets: false })
+  } else if (message.action === 'RESTART_PROCESSING_FROM_CURRENT') {
+    settings = message.settings ?? settings
+    void startProcessing({ resetCounters: true, scrollToTop: false, resetProcessedTweets: false })
   } else if (message.action === 'STOP_PROCESSING') {
     isProcessing = false
   }
@@ -17,16 +30,39 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   sendResponse({ success: true })
 })
 
-async function startProcessing() {
+async function startProcessing(options: StartProcessingOptions = {}) {
+  if (isProcessing) {
+    return
+  }
+
+  const {
+    resetCounters = true,
+    scrollToTop = true,
+    resetProcessedTweets = resetCounters
+  } = options
+
+  if (!settings) {
+    console.warn('No settings supplied for processing run')
+    return
+  }
+
+  if (resetCounters) {
+    processedCount = 0
+    bookmarkedCount = 0
+  }
+
+  if (resetProcessedTweets) {
+    processedTweets = new Set<string>()
+  }
+
   isProcessing = true
-  processedCount = 0
-  bookmarkedCount = 0
-  
-  // Scroll to top first
-  window.scrollTo(0, 0)
-  await sleep(1000)
-  
-  const processedTweets = new Set<string>()
+
+  if (scrollToTop) {
+    window.scrollTo(0, 0)
+    await sleep(1000)
+  } else {
+    await sleep(300)
+  }
   
   while (isProcessing && bookmarkedCount < settings.bookmarksLimit) {
     // Find all tweet articles on the page

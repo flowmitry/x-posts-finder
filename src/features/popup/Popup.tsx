@@ -20,6 +20,8 @@ export function Popup() {
     bookmarkedCount,
     startProcessing,
     stopProcessing,
+    continueProcessing,
+    startFromCurrentPosition,
     resetProcessing,
     isTwitterPage
   } = useProcessingContext()
@@ -40,6 +42,14 @@ export function Popup() {
     resetProcessing()
   }, [resetProcessing])
 
+  const handleContinue = useCallback(() => {
+    void continueProcessing()
+  }, [continueProcessing])
+
+  const handleStartFromHere = useCallback(() => {
+    void startFromCurrentPosition()
+  }, [startFromCurrentPosition])
+
   const { progressPercentage, bookmarkRate } = useMemo(() => {
     const progress = settings.bookmarksLimit > 0
       ? (bookmarkedCount / settings.bookmarksLimit) * 100
@@ -56,6 +66,10 @@ export function Popup() {
   }, [bookmarkedCount, processedCount, settings.bookmarksLimit])
 
   const showProcessingState = isProcessing || isCompleted
+  const hasBookmarksGoal = settings.bookmarksLimit > 0
+  const hasReachedBookmarksGoal = hasBookmarksGoal && bookmarkedCount >= settings.bookmarksLimit
+  const showContinueButton = isCompleted && !hasReachedBookmarksGoal
+  const showStartFromHereButton = isCompleted && hasReachedBookmarksGoal
 
   return (
     <div className="x-posts-finder-container">
@@ -71,13 +85,40 @@ export function Popup() {
               bookmarkRate={bookmarkRate}
               isCompleted={isCompleted}
             />
+            {isProcessing ? (
+              <ActionButton
+                onClick={handleStop}
+                variant="stop"
+              >
+                Stop analysis
+              </ActionButton>
+            ) : (
+              <>
+                {showContinueButton && (
+                  <ActionButton
+                    onClick={handleContinue}
+                    variant="start"
+                  >
+                    Continue
+                  </ActionButton>
+                )}
 
-            <ActionButton
-              onClick={isCompleted ? handleReset : handleStop}
-              variant={isCompleted ? 'start' : 'stop'}
-            >
-              {isCompleted ? 'Back to setup' : 'Stop analysis'}
-            </ActionButton>
+                {showStartFromHereButton && (
+                  <ActionButton
+                    onClick={handleStartFromHere}
+                    variant="start"
+                  >
+                    Start from here
+                  </ActionButton>
+                )}
+
+                <ActionButton
+                  onClick={handleReset}
+                >
+                  Back to setup
+                </ActionButton>
+              </>
+            )}
           </>
         ) : (
           <>
